@@ -1,0 +1,49 @@
+[gd_scene load_steps=5 format=3 uid="uid://c12vkmcbp0j0x"]
+
+[ext_resource type="Script" path="res://addons/godot_llm_framework/llm.gd" id="1_ni5lj"]
+[ext_resource type="Script" path="res://addons/godot_llm_framework/llm_config.gd" id="2_ah1ai"]
+[ext_resource type="Script" path="res://addons/godot_llm_framework/example.gd" id="3_0uvxb"]
+
+[sub_resource type="Resource" id="Resource_m02aw"]
+script = ExtResource("2_ah1ai")
+provider = 1
+api_key = "PUT_YOUR_API_KEY_HERE"
+model = "claude-3-haiku-20240307"
+temperature = 0.7
+max_message_history = 20
+additional_parameters = {}
+
+[node name="Example" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("3_0uvxb")
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 20
+
+[node name="RichTextLabel" type="RichTextLabel" parent="MarginContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/bold_italics_font_size = 12
+theme_override_font_sizes/italics_font_size = 12
+theme_override_font_sizes/mono_font_size = 12
+theme_override_font_sizes/normal_font_size = 12
+theme_override_font_sizes/bold_font_size = 12
+
+[node name="LLM" type="Node" parent="."]
+unique_name_in_owner = true
+script = ExtResource("1_ni5lj")
+config = SubResource("Resource_m02aw")
