@@ -79,7 +79,8 @@ func generate_response(prompt: String, params: Dictionary = {}) -> Dictionary:
 	#TODO implement handle error response
 	append_message_history({"role": "assistant", "content": api.extract_response_messages(response)})
 	
-	while response.stop_reason == "tool_use":
+	#TODO implement max loop int to prevent endless or too many api calls
+	while response.has("stop_reason") && response.stop_reason == "tool_use":
 		var tool_calls = api.extract_tool_calls(response)
 
 		if not tool_calls.is_empty():
