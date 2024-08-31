@@ -51,5 +51,5 @@ static func from_dict(dict: Dictionary) -> LLMConfig:
     config.api_key = dict.get("api_key", "")
     config.model = dict.get("model", "claude-3-haiku-20240307")
     config.temperature = dict.get("temperature", 0.7)
-    config.max_messages_log = dict.get("max_message_history", 20)
+    config.max_message_history = dict.get("max_message_history", 20)
     return config
