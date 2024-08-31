@@ -30,6 +30,8 @@ The Godot LLM Framework is a powerful addon for the Godot game engine that enabl
 
 ## Installation
 
+Find the addon using the Godot Asset Library or follow the instructions below for manual installs
+
 1. Download the `godot_llm_framework` folder from this repository.
 2. Place the folder in your Godot project's `addons/` directory.
 3. Enable the addon in your project settings:
