@@ -91,7 +91,7 @@ func get_available_models() -> Array:
 ##
 ## [return] An array of extracted response messages.
 func extract_response_messages(response: Dictionary) -> Array:
-	return response.content
+	return [response.Error] if response.has("Error") else response.content
 
 ## Checks if this API supports tool use.
 ##
