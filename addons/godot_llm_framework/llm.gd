@@ -79,8 +79,8 @@ func generate_response(prompt: String, params: Dictionary = {}) -> Dictionary:
 	#TODO implement handle error response
 	append_message_history({"role": "assistant", "content": api.extract_response_messages(response)})
 	
-	#TODO implement max loop int to prevent endless or too many api calls
-	while response.has("stop_reason") && response.stop_reason == "tool_use":
+	var max_loops = 5
+	while response.has("stop_reason") && response.stop_reason == "tool_use" && max_loops > 0:
 		var tool_calls = api.extract_tool_calls(response)
 
 		if not tool_calls.is_empty():
@@ -90,7 +90,12 @@ func generate_response(prompt: String, params: Dictionary = {}) -> Dictionary:
 
 			response = await api.generate_response(request_params)
 			append_message_history({"role": "assistant", "content": api.extract_response_messages(response)})
+		
+		max_loops -= 1
 	
+	if max_loops <= 0:
+		push_warning("Reached max tool loop limit")
+
 	return response
 
 ## Adds a message with content to the messages log, removing old messages if the limit is reached.
