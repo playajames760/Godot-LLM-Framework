@@ -80,7 +80,7 @@ func generate_response(prompt: String, params: Dictionary = {}) -> Dictionary:
 	append_message_history({"role": "assistant", "content": api.extract_response_messages(response)})
 	
 	var max_loop_limit = 5
-	while response.has("stop_reason") && response.stop_reason == "tool_use" && max_loop_limit > 0:
+	while api.has_tool_calls(response) && max_loop_limit > 0:
 		var tool_calls = api.extract_tool_calls(response)
 
 		if not tool_calls.is_empty():

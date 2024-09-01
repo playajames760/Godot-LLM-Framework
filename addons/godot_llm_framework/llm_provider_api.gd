@@ -192,6 +192,17 @@ func prepare_tools_for_request(_tools: Array[BaseTool]) -> Array:
 	push_error("Method 'prepare_tools_for_request' must be overridden in derived class")
 	return []
 
+## Checks if the response contains any tool calls.
+##
+## This method should be overridden in derived classes to implement
+## provider-specific logic for detecting tool calls in the response.
+##
+## [param response] The response dictionary from the API.
+## [return] [code]true[/code] if the response contains tool calls, [code]false[/code] otherwise.
+func has_tool_calls(_response: Dictionary) -> bool:
+	push_error("Method 'has_tool_calls' must be overridden in derived class")
+	return false
+
 ## Extracts tool calls from the API response.
 ##
 ## This method should be overridden in derived classes to implement
