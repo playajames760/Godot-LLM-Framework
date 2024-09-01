@@ -209,7 +209,7 @@ func has_tool_calls(_response: Dictionary) -> bool:
 ## provider-specific logic for extracting tool calls from the response.
 ##
 ## [param _response] The response dictionary from the API.
-## [return] An array of extracted tool calls.
+## [return] An array of extracted tool call dictionaries, each containing 'name', 'id', and 'input' keys.
 func extract_tool_calls(_response: Dictionary) -> Array:
 	push_error("Method 'extract_tool_calls' must be overridden in derived class")
 	return []
