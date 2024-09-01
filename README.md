@@ -40,13 +40,27 @@ Find the addon using the [Godot Asset Library](https://godotengine.org/asset-lib
 
 ## Usage
 
-### Basic Setup
+### Basic Setup Scene Tree
 
 1. Add an LLM node to your scene.
 2. Configure the LLM node in the Inspector:
    - Set the `Provider` (e.g., ANTHROPIC)
    - Enter your API key
    - Adjust other settings as needed (model, temperature, etc.)
+
+### Basic Setup GDScript
+
+```gdscript
+var llm_config = LLMConfig.from_dict({
+    "provider": LLMProviderAPI.Provider.ANTHROPIC,
+    "api_key": "Your API key for the chosen provider",
+    "model": "claude-3-haiku-20240307",
+    "temperature": "0.7",
+    "max_message_history": 20
+})
+
+var llm = LLM.create(llm_config)
+```
 
 ### Generating Responses
 
