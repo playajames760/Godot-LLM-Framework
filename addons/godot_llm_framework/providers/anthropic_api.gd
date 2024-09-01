@@ -77,6 +77,9 @@ func prepare_tools_for_request(tools: Array) -> Array:
 		prepared_tools.append(tool.to_dict())
 	return prepared_tools
 
+func has_tool_calls(response: Dictionary) -> bool:
+	return response.has("stop_reason") && response.stop_reason == "tool_use"
+
 func extract_tool_calls(response: Dictionary) -> Array:
 	var tool_calls = []
 	for content in response.get("content", []):
