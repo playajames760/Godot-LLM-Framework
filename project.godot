@@ -13,4 +13,3 @@ config_version=5
 config/name="Workspace"
 run/main_scene="res://addons/godot_llm_framework/example.tscn"
 config/features=PackedStringArray("4.3", "Forward Plus")
-config/icon="res://icon.svg"
