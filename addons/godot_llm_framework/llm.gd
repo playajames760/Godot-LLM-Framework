@@ -90,7 +90,7 @@ func generate_response(prompt: String, params: Dictionary = {}, use_tools: bool 
 		return response
 
 	if debug: print("LLM: Preparing tools for request")
-	request_params["tools"] = api.prepare_tools_for_request(tools.values()) # TODO This may break providers that dont use the 'tools' identifier to provider tools in a request
+	request_params["tools"] = api.prepare_tools_for_request(tools.values())
 	
 	if debug: print("LLM: Sending request with tools")
 	if debug: print("LLM: Request parameters: ", JSON.stringify(request_params, "\t"))
