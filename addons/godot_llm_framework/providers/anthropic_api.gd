@@ -12,6 +12,8 @@ class_name AnthropicAPI
 ## The base URL for the Anthropic API.
 const API_URL = "https://api.anthropic.com/v1/messages"
 
+var system_prompt: String
+
 func generate_response(params: Dictionary) -> Dictionary:
 	var headers = {
 		"x-api-key": api_key,
@@ -32,6 +34,8 @@ func generate_response(params: Dictionary) -> Dictionary:
 	# Adds system prompt if it has been provided
 	if params.has("system"):
 		body["system"] = params.get("system")
+	elif system_prompt:
+		body["system"] = system_prompt
 
 	var response = await _make_request(API_URL, headers, body)
 	
@@ -101,3 +105,12 @@ func format_tool_results(tool_results: Array) -> Array:
 			"is_error": is_error
 		})
 	return array
+
+func supports_system_prompt() -> bool:
+	return true
+
+func set_system_prompt(prompt: String) -> void:
+	system_prompt = prompt
+
+func get_system_prompt() -> String:
+	return system_prompt
