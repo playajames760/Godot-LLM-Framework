@@ -60,8 +60,9 @@ func _initialize_api():
 ##
 ## [param prompt] The input prompt for the LLM.
 ## [param params] Additional parameters for the request (optional).
+## [param use_tools] Specify if you want the request to use tools or not. Default's to true (optional).
 ## [return] A dictionary containing the generated response and any additional information.
-func generate_response(prompt: String, params: Dictionary = {}) -> Dictionary:
+func generate_response(prompt: String, params: Dictionary = {}, use_tools: bool = true) -> Dictionary:
 	if debug: print("LLM: generate_response() called with prompt: ", prompt)
 	if not api:
 		push_error("API not initialized")
@@ -80,7 +81,7 @@ func generate_response(prompt: String, params: Dictionary = {}) -> Dictionary:
 	var response
 
 	# Send basic request if no tools are registered or not supported
-	if not api.supports_tool_use() || not tools:
+	if not api.supports_tool_use() || not tools || not use_tools:
 		if debug: print("LLM: Sending basic request (no tools)")
 		if debug: print("LLM: Request parameters: ", JSON.stringify(request_params, "\t"))
 		response = await api.generate_response(request_params)
