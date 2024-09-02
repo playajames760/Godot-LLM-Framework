@@ -242,3 +242,14 @@ func _execute_tool_calls(tool_calls: Array) -> Array:
 			if debug: print("LLM: Warning - Tool not found: ", p_call.name)
 	if debug: print("LLM: _execute_tool_calls() completed with ", results.size(), " results")
 	return results
+
+func set_system_prompt(prompt: String) -> void:
+	if api.supports_system_prompt():
+		api.set_system_prompt(prompt)
+	else:
+		push_warning(LLMProviderAPI.Provider.keys()[config.provider] + " does not support system prompts")
+
+func get_system_prompt() -> String:
+	if not api.supports_system_prompt():
+		push_warning(LLMProviderAPI.Provider.keys()[config.provider] + " does not support system prompts")
+	return api.get_system_prompt()
