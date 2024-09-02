@@ -228,3 +228,28 @@ func extract_tool_calls(_response: Dictionary) -> Array:
 func format_tool_results(_tool_results: Array) -> Array:
 	push_error("Method 'format_tool_results' must be overridden in derived class")
 	return []
+
+## Checks if this API supports system prompt.
+##
+## [return] [code]true[/code] if the API supports system prompt use, [code]false[/code] otherwise.
+func supports_system_prompt() -> bool:
+	return false
+
+## Sets the system prompt for the LLM provider.
+##
+## This method should be overridden in derived classes to implement
+## provider-specific logic for setting the system prompt.
+##
+## [param _prompt] The system prompt to set.
+func set_system_prompt(_prompt: String) -> void:
+	push_error("Method 'set_system_prompt' must be overridden in derived class")
+
+## Gets the current system prompt for the LLM provider.
+##
+## This method should be overridden in derived classes to implement
+## provider-specific logic for retrieving the system prompt.
+##
+## [return] The current system prompt as a string.
+func get_system_prompt() -> String:
+	push_error("Method 'get_system_prompt' must be overridden in derived class")
+	return ""
