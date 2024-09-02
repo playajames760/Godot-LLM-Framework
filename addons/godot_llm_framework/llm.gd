@@ -107,7 +107,7 @@ func generate_response(prompt: String, params: Dictionary = {}, use_tools: bool 
 
 		if not tool_calls.is_empty():
 			if debug: print("LLM: Executing tool calls")
-			var tool_results = _execute_tool_calls(tool_calls)
+			var tool_results = await _execute_tool_calls(tool_calls)
 			append_message_history({"role": "user", "content": api.format_tool_results(tool_results)})
 			request_params["messages"] = message_history
 
@@ -239,7 +239,7 @@ func _execute_tool_calls(tool_calls: Array) -> Array:
 			if debug: print("LLM: Executing tool: ", p_call.name)
 			if debug: print("LLM: Tool input: ", p_call.input)
 			var tool = tools[p_call.name]
-			var output = tool.execute(p_call.input)
+			var output = await tool.execute(p_call.input)
 			if debug: print("LLM: Tool output: ", output)
 			results.append({
 				"id": p_call.id,
