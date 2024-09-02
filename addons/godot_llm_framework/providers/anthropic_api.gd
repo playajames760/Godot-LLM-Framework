@@ -32,10 +32,6 @@ func generate_response(params: Dictionary) -> Dictionary:
 	# Adds system prompt if it has been provided
 	if params.has("system"):
 		body["system"] = params.get("system")
-	
-	# Adds tools to the body if they are provided
-	if params.has("tools"):
-		body["tools"] = params.get("tools")
 
 	var response = await _make_request(API_URL, headers, body)
 	
