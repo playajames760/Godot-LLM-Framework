@@ -31,6 +31,10 @@ func generate_response(params: Dictionary) -> Dictionary:
 		"stream": false
 	}
 
+	# Adds tools to the body if they are provided
+	if params.has("tools"):
+		body["tools"] = params.get("tools")
+
 	# Adds system prompt if it has been provided
 	if params.has("system"):
 		body["system"] = params.get("system")
