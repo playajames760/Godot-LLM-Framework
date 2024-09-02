@@ -16,7 +16,7 @@ class_name LLM
 ## An array to store recent chat messages.
 @export var message_history: Array = []
 
-## A bool to enable printing debug messages to the console.
+## A bool to enable printing debug messages to the console. Use set_debug func to modify.
 @export var debug: bool = false
 
 ## The current LLM provider API instance.
@@ -48,6 +48,7 @@ func _initialize_api():
 			if debug: print("LLM: Error - OpenAI support not implemented")
 	
 	if api:
+		if debug: api.debug = true
 		api.set_api_key(config.api_key)
 		add_child(api)  # Add the LLMProviderAPI instance as a child of LLM
 		if debug: print("LLM: API key set and API added as child")
@@ -83,7 +84,7 @@ func generate_response(prompt: String, params: Dictionary = {}, use_tools: bool 
 	# Send basic request if no tools are registered or not supported
 	if not api.supports_tool_use() || not tools || not use_tools:
 		if debug: print("LLM: Sending basic request (no tools)")
-		if debug: print("LLM: Request parameters: ", JSON.stringify(request_params, "\t"))
+		# The LLMAPIProvider will print the request debug when debug is enabled
 		response = await api.generate_response(request_params)
 		if debug: print("LLM: Response received: ", JSON.stringify(response, "\t"))
 		append_message_history({"role": "assistant", "content": api.extract_response_messages(response)}) # TODO Validate content exists
@@ -93,7 +94,7 @@ func generate_response(prompt: String, params: Dictionary = {}, use_tools: bool 
 	request_params["tools"] = api.prepare_tools_for_request(tools.values())
 	
 	if debug: print("LLM: Sending request with tools")
-	if debug: print("LLM: Request parameters: ", JSON.stringify(request_params, "\t"))
+	# The LLMAPIProvider will print the request debug when debug is enabled
 	response = await api.generate_response(request_params)
 	if debug: print("LLM: Response received: ", JSON.stringify(response, "\t"))
 	#TODO implement handle error response
@@ -111,7 +112,7 @@ func generate_response(prompt: String, params: Dictionary = {}, use_tools: bool 
 			request_params["messages"] = message_history
 
 			if debug: print("LLM: Sending follow-up request after tool execution")
-			if debug: print("LLM: Request parameters: ", JSON.stringify(request_params, "\t"))
+			# The LLMAPIProvider will print the request debug when debug is enabled
 			response = await api.generate_response(request_params)
 			if debug: print("LLM: Response received: ", JSON.stringify(response, "\t"))
 			append_message_history({"role": "assistant", "content": api.extract_response_messages(response)})
@@ -169,6 +170,13 @@ func set_provider(provider: LLMProviderAPI.Provider, api_key: String) -> void:
 func set_model(model: String) -> void:
 	if debug: print("LLM: set_model() called with model: ", model)
 	config.model = model
+
+## Enable debug messages for the LLM.
+##
+## [param model] The new value to use.
+func set_debug(value: bool) -> void:
+	debug = value
+	api.debug = value
 
 ## Updates the current configuration with new values.
 ##

@@ -19,6 +19,9 @@ enum Provider {
 ## The API key for authenticating with the LLM provider.
 var api_key: String
 
+## A bool to enable printing debug messages to the console.
+var debug: bool = false
+
 ## Sets the API key for the LLM provider.
 ##
 ## [param key] The API key to set.
@@ -84,6 +87,8 @@ func _coroutine_request(url: String, headers: Dictionary, body: Dictionary) -> D
 	for key in headers:
 		header_array.append(key + ": " + headers[key])
 	
+	if debug: print("LLM: Request Data: ", JSON.stringify(headers, "\t") + "\n" + JSON.stringify(body, "\t"))
+
 	var error = http_request.request(url, header_array, HTTPClient.METHOD_POST, JSON.stringify(body))
 	if error != OK:
 		push_error("An error occurred in the HTTP request.")
