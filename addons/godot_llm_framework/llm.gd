@@ -16,11 +16,15 @@ class_name LLM
 ## An array to store recent chat messages.
 @export var message_history: Array = []
 
+## A bool to enable printing debug messages to the console.
+@export var debug: bool = false
+
 ## The current LLM provider API instance.
 var api: LLMProviderAPI
 
 func _ready() -> void:
 	assert(config, "LLM must have a valid config")
+	if debug: print("LLM: _ready() called")
 	_initialize_api()
 
 ## Creates a new LLM instance with the given configuration.
@@ -34,15 +38,21 @@ static func create(p_config: LLMConfig):
 
 ## Initializes the appropriate API based on the current configuration.
 func _initialize_api():
+	if debug: print("LLM: Initializing API")
 	match config.provider:
 		LLMProviderAPI.Provider.ANTHROPIC:
 			api = AnthropicAPI.new()
+			if debug: print("LLM: Anthropic API initialized")
 		LLMProviderAPI.Provider.OPENAI:
 			push_error("OpenAI support has not been implemented yet.")
+			if debug: print("LLM: Error - OpenAI support not implemented")
 	
 	if api:
 		api.set_api_key(config.api_key)
 		add_child(api)  # Add the LLMProviderAPI instance as a child of LLM
+		if debug: print("LLM: API key set and API added as child")
+	else:
+		if debug: print("LLM: Failed to initialize API")
 
 ## Generates a response from the LLM using the given prompt and parameters.
 ##
@@ -52,11 +62,13 @@ func _initialize_api():
 ## [param params] Additional parameters for the request (optional).
 ## [return] A dictionary containing the generated response and any additional information.
 func generate_response(prompt: String, params: Dictionary = {}) -> Dictionary:
+	if debug: print("LLM: generate_response() called with prompt: ", prompt)
 	if not api:
 		push_error("API not initialized")
+		if debug: print("LLM: Error - API not initialized")
 		return {}
 
-	var request_params = config.to_dict().duplicate()
+	var request_params = _get_clean_config(config.to_dict())
 	request_params.merge(params, true)
 
 	# Add user message to log
@@ -69,33 +81,47 @@ func generate_response(prompt: String, params: Dictionary = {}) -> Dictionary:
 
 	# Send basic request if no tools are registered or not supported
 	if not api.supports_tool_use() || not tools:
+		if debug: print("LLM: Sending basic request (no tools)")
+		if debug: print("LLM: Request parameters: ", JSON.stringify(request_params, "\t"))
 		response = await api.generate_response(request_params)
+		if debug: print("LLM: Response received: ", JSON.stringify(response, "\t"))
 		append_message_history({"role": "assistant", "content": api.extract_response_messages(response)}) # TODO Validate content exists
 		return response
 
+	if debug: print("LLM: Preparing tools for request")
 	request_params["tools"] = api.prepare_tools_for_request(tools.values()) # TODO This may break providers that dont use the 'tools' identifier to provider tools in a request
 	
+	if debug: print("LLM: Sending request with tools")
+	if debug: print("LLM: Request parameters: ", JSON.stringify(request_params, "\t"))
 	response = await api.generate_response(request_params)
+	if debug: print("LLM: Response received: ", JSON.stringify(response, "\t"))
 	#TODO implement handle error response
 	append_message_history({"role": "assistant", "content": api.extract_response_messages(response)})
 	
 	var max_loop_limit = 5
 	while api.has_tool_calls(response) && max_loop_limit > 0:
+		if debug: print("LLM: Processing tool calls, remaining loops: ", max_loop_limit)
 		var tool_calls = api.extract_tool_calls(response)
 
 		if not tool_calls.is_empty():
+			if debug: print("LLM: Executing tool calls")
 			var tool_results = _execute_tool_calls(tool_calls)
 			append_message_history({"role": "user", "content": api.format_tool_results(tool_results)})
 			request_params["messages"] = message_history
 
+			if debug: print("LLM: Sending follow-up request after tool execution")
+			if debug: print("LLM: Request parameters: ", JSON.stringify(request_params, "\t"))
 			response = await api.generate_response(request_params)
+			if debug: print("LLM: Response received: ", JSON.stringify(response, "\t"))
 			append_message_history({"role": "assistant", "content": api.extract_response_messages(response)})
 		
 		max_loop_limit -= 1
 	
 	if max_loop_limit <= 0:
 		push_warning("Reached max tool loop limit")
+		if debug: print("LLM: Warning - Reached max tool loop limit")
 
+	if debug: print("LLM: generate_response() completed")
 	return response
 
 ## Adds a message with content to the messages log, removing old messages if the limit is reached.
@@ -105,22 +131,28 @@ func append_message_history(content: Dictionary) -> void:
 	message_history.append(content)
 	while message_history.size() > config.max_message_history:
 		message_history.pop_front()
+	if debug: print("LLM: Message appended to history, current size: ", message_history.size())
 
 ## Retrieves the list of available models from the current API.
 ##
 ## [return] An array of available model names.
 func get_available_models() -> Array:
+	if debug: print("LLM: get_available_models() called")
 	if not api:
 		push_error("API not initialized")
+		if debug: print("LLM: Error - API not initialized")
 		return []
 
-	return api.get_available_models()
+	var models = api.get_available_models()
+	if debug: print("LLM: Available models: ", models)
+	return models
 
 ## Sets a new provider and API key, reinitializing the API.
 ##
 ## [param provider] The new LLM provider to use.
 ## [param api_key] The new API key for the provider.
 func set_provider(provider: LLMProviderAPI.Provider, api_key: String) -> void:
+	if debug: print("LLM: set_provider() called with provider: ", LLMProviderAPI.Provider.keys()[provider])
 	# Remove the old API instance if it exists
 	if api:
 		remove_child(api)
@@ -134,26 +166,36 @@ func set_provider(provider: LLMProviderAPI.Provider, api_key: String) -> void:
 ##
 ## [param model] The new default model to use.
 func set_model(model: String) -> void:
+	if debug: print("LLM: set_model() called with model: ", model)
 	config.model = model
 
 ## Updates the current configuration with new values.
 ##
 ## [param new_config] A dictionary containing the new configuration values.
 func update_config(new_config: Dictionary) -> void:
+	if debug: print("LLM: update_config() called with new config: ", new_config)
 	var config_dict = config.to_dict()
 	config_dict.merge(new_config, true)
 	config = LLMConfig.from_dict(config_dict)
+
+func _get_clean_config(config: Dictionary) -> Dictionary:
+	var clean_config = config.duplicate()
+	clean_config.erase("max_message_history")
+	clean_config.erase("provider")
+	return clean_config
 
 ## Sets the maximum number of messages to keep in the history.
 ##
 ## [param limit] The new maximum number of messages to keep.
 func set_max_message_history(limit: int) -> void:
+	if debug: print("LLM: set_max_message_history() called with limit: ", limit)
 	config.max_messages_log = limit
 	while message_history.size() > limit:
 		message_history.pop_front()
 
 ## Clears all messages from the message history.
 func clear_message_history() -> void:
+	if debug: print("LLM: clear_message_history() called")
 	message_history = []
 
 ## Adds a tool to the list of available tools.
@@ -161,6 +203,7 @@ func clear_message_history() -> void:
 ## [param tool] The BaseTool instance to add.
 ## @todo Add error if tools aren't supported by the current API.
 func add_tool(tool: BaseTool):
+	if debug: print("LLM: add_tool() called with tool: ", tool.tool_name)
 	tools[tool.tool_name] = tool
 
 ## Removes a tool from the list of available tools.
@@ -168,6 +211,7 @@ func add_tool(tool: BaseTool):
 ## [param tool_name] The name of the tool to remove.
 ## @todo Add error if tools aren't supported by the current API.
 func remove_tool(tool_name: String):
+	if debug: print("LLM: remove_tool() called with tool_name: ", tool_name)
 	tools.erase(tool_name)
 
 ## Executes a list of tool calls and returns their results.
@@ -179,25 +223,21 @@ func remove_tool(tool_name: String):
 ## [param tool_calls] An array of tool call dictionaries, each containing 'name', 'id', and 'input' keys.
 ## [return] An array of dictionaries containing tool execution results, each with 'id' and 'output' keys.
 func _execute_tool_calls(tool_calls: Array) -> Array:
+	if debug: print("LLM: _execute_tool_calls() called with ", tool_calls.size(), " tool calls")
 	var results = []
 	for p_call in tool_calls:
 		if tools.has(p_call.name):
+			if debug: print("LLM: Executing tool: ", p_call.name)
+			if debug: print("LLM: Tool input: ", p_call.input)
 			var tool = tools[p_call.name]
 			var output = tool.execute(p_call.input)
+			if debug: print("LLM: Tool output: ", output)
 			results.append({
 				"id": p_call.id,
 				"output": output
 			})
 		else:
 			push_warning("Tool not found: " + p_call.name)
+			if debug: print("LLM: Warning - Tool not found: ", p_call.name)
+	if debug: print("LLM: _execute_tool_calls() completed with ", results.size(), " results")
 	return results
-
-## Logs API interactions for debugging purposes.
-##
-## [param request] The request dictionary.
-## [param response] The response dictionary.
-func log_interaction(request: Dictionary, response: Dictionary) -> void:
-	print("DEBUG: log_interaction called")
-	print("API Interaction - " + LLMProviderAPI.Provider.keys()[config.provider])
-	print("Request: ", request)
-	print("Response: ", response)
