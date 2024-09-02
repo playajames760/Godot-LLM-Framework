@@ -95,13 +95,13 @@ func format_tool_results(tool_results: Array) -> Array:
 	var array = []
 	for result in tool_results:
 		var is_error = false
-		if result.output.has("is_error") && result.output["is_error"]:
-			is_error = true
+		if result.output.has("is_error"):
+			is_error = result.output.is_error
 			result.output.erase("is_error")
 		array.append({
 			"type": "tool_result",
-			"tool_use_id": result.get("id"),
-			"content": JSON.stringify(result.get("output")),
+			"tool_use_id": result.id,
+			"content": JSON.stringify(result.output),
 			"is_error": is_error
 		})
 	return array
