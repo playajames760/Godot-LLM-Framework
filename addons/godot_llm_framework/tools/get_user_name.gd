@@ -11,11 +11,15 @@ func _init():
         }
     )
 
-func execute(_input: Dictionary) -> String:
-    # Implement actual weather fetching logic here
+func execute(_input: Dictionary) -> Dictionary:
+    var result = {
+        "output" = "",
+        "is_error" = false
+    }
     if OS.has_environment("USERNAME"):
-        return OS.get_environment("USERNAME")
+        result.output = OS.get_environment("USERNAME")
     elif OS.has_environment("USER"):
-        return OS.get_environment("USER")
+        result.output = OS.get_environment("USER")
     else:
-        return "John Doe"
+        result.output = "John Doe"
+    return result

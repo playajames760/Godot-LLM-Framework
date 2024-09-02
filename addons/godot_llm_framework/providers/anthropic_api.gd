@@ -94,9 +94,14 @@ func extract_tool_calls(response: Dictionary) -> Array:
 func format_tool_results(tool_results: Array) -> Array:
 	var array = []
 	for result in tool_results:
+		var is_error = false
+		if result.output.has("is_error") && result.output["is_error"]:
+			is_error = true
+			result.output.erase("is_error")
 		array.append({
 			"type": "tool_result",
 			"tool_use_id": result.get("id"),
-			"content": result.get("output")
+			"content": JSON.stringify(result.get("output")),
+			"is_error": is_error
 		})
 	return array

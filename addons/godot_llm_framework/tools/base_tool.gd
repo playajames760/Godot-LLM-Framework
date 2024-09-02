@@ -29,12 +29,42 @@ func _init(_name: String, _description: String, _input_schema: Dictionary):
 ## Execute the tool's functionality.
 ##
 ## This method should be overridden by specific tool implementations.
-## @param _input A dictionary containing the input data for the tool.
-## @return The result of the tool's execution, or null if not implemented.
-func execute(_input: Dictionary) -> Variant:
+## It performs the main operation of the tool and returns the result.
+##
+## [param _input] A dictionary containing the input data for the tool.
+## Return's a dictionary containing the result of the tool's execution and error status.
+## The returned dictionary should have the following structure:
+## [codeblock]
+## {
+##      "output": Variant, # The actual output of the tool
+##      "is_error": bool   # True if an error occurred, false otherwise
+## }
+## [/codeblock]
+## This structure allows for easy integration with the error handling system.
+##
+## @example
+## [codeblock]
+## func execute(input: Dictionary) -> Dictionary:
+##     var result = {}
+##     if some_condition:
+##         result = {
+##             "output": "Tool execution successful",
+##             "is_error": false
+##         }
+##     else:
+##         result = {
+##             "output": "An error occurred during tool execution",
+##             "is_error": true
+##         }
+##     return result
+## [/codeblock]
+func execute(_input: Dictionary) -> Dictionary:
     # This method should be overridden by specific tool implementations
     push_error("BaseTool.execute() must be overridden")
-    return null
+    return {
+        "output": null,
+        "is_error": true
+    }
 
 ## Convert the tool's properties to a dictionary.
 ##

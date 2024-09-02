@@ -219,8 +219,12 @@ func extract_tool_calls(_response: Dictionary) -> Array:
 ## This method should be overridden in derived classes to implement
 ## provider-specific logic for formatting tool results.
 ##
-## [param _tool_results] An array of dictionaries containing the results of tool executions.
+## [param _tool_results]
+## An array of dictionaries containing the results from tool executions. Each dictionary in the array has two keys:
+## 1. 'id': Identifies the specific tool execution
+## 2. 'output': Contains the output of the tool execution
 ## [return] An array of formatted tool result data in the provider's expected format.
+## For error handling, check if result.output.is_error is True.
 func format_tool_results(_tool_results: Array) -> Array:
 	push_error("Method 'format_tool_results' must be overridden in derived class")
 	return []
