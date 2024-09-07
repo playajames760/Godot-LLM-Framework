@@ -26,6 +26,27 @@ func _init(_name: String, _description: String, _input_schema: Dictionary):
     description = _description
     input_schema = _input_schema
 
+## Prepares the tool for submission with an LLM request.
+##
+## This method is called before sending the tool information to the LLM.
+## It allows for any runtime modifications or variable replacements needed
+## to properly represent the tool in the LLM request.
+##
+## @return A dictionary containing the prepared tool information.
+## The returned dictionary should have the same structure as the one
+## returned by the _to_dict() method, but with any necessary modifications.
+##
+## @example
+## [codeblock]
+## func prepare_tool() -> Dictionary:
+##     var prepared_dict = _to_dict()
+##     # Perform any runtime modifications here
+##     prepared_dict["description"] = prepared_dict["description"].replace("{CURRENT_DATE}", Time.get_date_string_from_system())
+##     return prepared_dict
+## [/codeblock]
+func prepare_tool() -> Dictionary:
+    return _to_dict()
+
 ## Execute the tool's functionality.
 ##
 ## This method should be overridden by specific tool implementations.
@@ -69,7 +90,7 @@ func execute(_input: Dictionary) -> Dictionary:
 ## Convert the tool's properties to a dictionary.
 ##
 ## @return A dictionary containing the tool's name, description, and input schema.
-func to_dict() -> Dictionary:
+func _to_dict() -> Dictionary:
     return {
         "name": tool_name,
         "description": description,

@@ -23,7 +23,7 @@ func generate_response(params: Dictionary) -> Dictionary:
 
 	var body = {
 		"model": params.get("model", "claude-3-haiku-20240307"),
-		"max_tokens": params.get("max_tokens", 1024),
+		"max_tokens": params.get("max_tokens", 2048),
 		"messages": params.get("messages"),
 		"temperature": params.get("temperature", 1.0),
 		"top_p": params.get("top_p", 1.0),
@@ -78,7 +78,7 @@ func supports_tool_use() -> bool:
 func prepare_tools_for_request(tools: Array) -> Array:
 	var prepared_tools = []
 	for tool in tools:
-		prepared_tools.append(tool.to_dict())
+		prepared_tools.append(tool.prepare_tool())
 	return prepared_tools
 
 func has_tool_calls(response: Dictionary) -> bool:
